@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Biblioteca Online</title>
+    <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0e7ff; /* indigo-100 */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Container Centralizado (Card) -->
+    <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl w-full max-w-md transition-all duration-500">
+        
+        <div class="flex justify-center items-center space-x-2 mb-6">
+            <i data-lucide="book-open-text" class="text-indigo-600 w-8 h-8"></i>
+            <h1 class="text-3xl font-bold text-gray-900">Acesso</h1>
+        </div>
+
+        <!-- Formulário de Login (Visível por padrão) -->
+        <div id="loginForm" class="form-container">
+            <h2 class="text-xl font-semibold text-center text-gray-800 mb-6">Fazer Login</h2>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                    <input type="email" id="login-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="seu.email@exemplo.com">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                    <input type="password" id="login-password" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition duration-150 shadow-md">
+                    Entrar
+                </button>
+            </form>
+            
+            <div class="mt-6">
+                <div class="relative flex items-center justify-center mb-6">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative bg-white px-3 text-sm font-medium text-gray-500">
+                        Ou
+                    </div>
+                </div>
+
+                <!-- Botão de Acesso Google -->
+                <button type="button" onclick="handleGoogleLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-150 shadow-md flex items-center justify-center space-x-2">
+                    <i data-lucide="chrome" class="lucide w-5 h-5"></i>
+                    <span>Continuar com Google</span>
+                </button>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-gray-600">
+                Ainda não tem conta?
+                <a href="#" onclick="showRegistration()" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    Cadastre-se
+                </a>
+            </p>
+        </div>
+
+        <!-- Formulário de Cadastro (Oculto por padrão) -->
+        <div id="registerForm" class="form-container hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-800 mb-6">Criar Conta</h2>
+            <form onsubmit="handleRegistration(event)" class="space-y-4">
+                <div>
+                    <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                    <input type="text" id="register-name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Seu Nome">
+                </div>
+                <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                    <input type="email" id="register-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="seu.email@exemplo.com">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Senha (Mínimo 6 caracteres)</label>
+                    <input type="password" id="register-password" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition duration-150 shadow-md">
+                    Cadastrar
+                </button>
+            </form>
+
+            <div class="mt-6">
+                <div class="relative flex items-center justify-center mb-6">
+                    <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative bg-white px-3 text-sm font-medium text-gray-500">
+                        Ou
+                    </div>
+                </div>
+
+                <!-- Botão de Acesso Google -->
+                <button type="button" onclick="handleGoogleLogin()" class="w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition duration-150 shadow-md flex items-center justify-center space-x-2">
+                    <i data-lucide="chrome" class="lucide w-5 h-5"></i>
+                    <span>Continuar com Google</span>
+                </button>
+            </div>
+
+            <p class="mt-6 text-center text-sm text-gray-600">
+                Já tem conta?
+                <a href="#" onclick="showLogin()" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    Faça Login
+                </a>
+            </p>
+        </div>
+
+        <!-- Caixa de Mensagem de Feedback -->
+        <div id="feedbackMessage" class="mt-6 p-3 text-sm rounded-lg border hidden transition-all duration-300"></div>
+
+        <!-- Link de Volta para a Home -->
+        <div class="mt-8 text-center">
+            <a href="index.html" class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800 transition">
+                <i data-lucide="arrow-left" class="lucide mr-1 w-4 h-4"></i>
+                Voltar à Página Inicial
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // Inicializa ícones Lucide
+        lucide.createIcons();
+
+        // Variável de controle de timeout
+        let messageTimeout;
+
+        /**
+         * Exibe uma mensagem de feedback na tela.
+         * @param {string} message - O texto da mensagem.
+         * @param {boolean} isSuccess - true para sucesso (verde), false para erro/aviso (vermelho).
+         */
+        function displayMessage(message, isSuccess) {
+            const messageBox = document.getElementById('feedbackMessage');
+            
+            clearTimeout(messageTimeout);
+
+            // Limpa classes anteriores
+            messageBox.className = 'mt-6 p-3 text-sm rounded-lg border hidden transition-all duration-300';
+            messageBox.classList.remove('hidden');
+
+            if (isSuccess) {
+                messageBox.classList.add('bg-green-100', 'text-green-700', 'border-green-500');
+            } else {
+                messageBox.classList.add('bg-red-100', 'text-red-700', 'border-red-500');
+            }
+
+            messageBox.innerHTML = message;
+
+            // Oculta a mensagem após 5 segundos
+            messageTimeout = setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        /**
+         * Alterna para o formulário de Cadastro.
+         */
+        function showRegistration() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('feedbackMessage').classList.add('hidden');
+        }
+
+        /**
+         * Alterna para o formulário de Login.
+         */
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('feedbackMessage').classList.add('hidden');
+        }
+
+        /**
+         * Simulação de Login.
+         */
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            // Simulação de autenticação
+            if (email === 'admin@biblioteca.com' && password === 'admin123') {
+                displayMessage('Login de Administrador bem-sucedido! Redirecionando...', true);
+                setTimeout(() => { window.location.href = 'index.html?role=admin'; }, 1500); // Redireciona com um parâmetro simulado
+            } else if (email === 'user@biblioteca.com' && password === 'user123') {
+                displayMessage('Login de Usuário bem-sucedido! Redirecionando...', true);
+                setTimeout(() => { window.location.href = 'index.html?role=user'; }, 1500);
+            } else {
+                displayMessage('Credenciais inválidas. Tente "admin@biblioteca.com" / "admin123" ou "user@biblioteca.com" / "user123".', false);
+            }
+        }
+
+        /**
+         * Simulação de Cadastro.
+         */
+        function handleRegistration(event) {
+            event.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            // A senha é validada pelo minlength no HTML
+            
+            // Simulação de sucesso no cadastro
+            displayMessage(`Cadastro de ${name} realizado com sucesso! Faça login agora.`, true);
+            
+            // Volta para a tela de login após 2 segundos
+            setTimeout(() => { showLogin(); }, 2000);
+        }
+
+        /**
+         * Simulação de Login com Google.
+         */
+        function handleGoogleLogin() {
+            // Exibe mensagem inicial de simulação
+            displayMessage('Simulação de Login com Google: Iniciando autenticação externa...', true);
+            
+            // Simula o tempo de processamento e redirecionamento
+            setTimeout(() => {
+                displayMessage('Login com Google (Simulado) bem-sucedido! Redirecionando...', true);
+                window.location.href = 'index.html?role=googleuser'; 
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

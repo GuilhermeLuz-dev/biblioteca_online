@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Biblioteca Online</title>
+    <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6; /* blue-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .book-card-cover {
+            height: 220px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .lucide {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 1. Cabeçalho e Navegação -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <!-- Logo e Título -->
+            <div class="flex items-center space-x-2">
+                <i data-lucide="book-open-text" class="text-indigo-600"></i>
+                <h1 class="text-2xl font-bold text-gray-900">Biblioteca Online</h1>
+            </div>
+
+            <!-- Botões de Acesso (Login/Cadastro) - AGORA SÃO LINKS PARA login.html -->
+            <div class="flex space-x-3">
+                <a href="login_cadastro.html" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
+                    Login
+                </a>
+                <a href="login_cadastro.html" class="hidden sm:block px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition duration-150">
+                    Cadastre-se
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Conteúdo Principal e Busca Destacada -->
+    <main class="flex-grow">
+        <div class="bg-indigo-50 py-16 mb-10 border-b border-indigo-200">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-2">Encontre Seu Próximo Livro</h2>
+                <p class="text-lg text-gray-600 mb-8">Milhares de títulos disponíveis. Pesquise por autor, título ou categoria.</p>
+
+                <!-- Barra de Pesquisa -->
+                <div class="flex bg-white rounded-xl shadow-xl overflow-hidden p-1">
+                    <input type="text" id="searchInput" placeholder="Buscar por título, autor ou palavra-chave..."
+                           class="flex-grow p-4 text-gray-800 border-none focus:outline-none focus:ring-0 rounded-l-xl">
+                    <button onclick="searchBooks()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-xl transition duration-150 flex items-center justify-center">
+                        <i data-lucide="search" class="lucide mr-2"></i>
+                        Buscar
+                    </button>
+                </div>
+
+                <!-- Filtros Rápidos -->
+                <div class="mt-6 flex flex-wrap justify-center gap-3">
+                    <span class="text-sm font-medium text-gray-600">Filtros:</span>
+                    <button class="filter-btn text-sm px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition" data-filter="Populares">Mais Populares</button>
+                    <button class="filter-btn text-sm px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition" data-filter="Novos">Novos Lançamentos</button>
+                    <button class="filter-btn text-sm px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition" data-filter="Tecnologia">Tecnologia</button>
+                    <button class="filter-btn text-sm px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded-full hover:bg-gray-100 transition" data-filter="Romance">Romance</button>
+                </div>
+
+                <!-- Caixa de Mensagem de Simulação (Para detalhes do livro) -->
+                <div id="mainMessageBox" class="mt-8 p-3 text-sm text-center text-green-700 bg-green-100 border border-green-300 rounded-lg hidden mx-auto max-w-lg"></div>
+
+            </div>
+        </div>
+
+        <!-- 3. Resultados da Busca / Livros em Destaque -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h3 id="sectionTitle" class="text-2xl font-semibold text-gray-800 mb-6">Livros em Destaque</h3>
+            <div id="bookList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 pb-12">
+                <!-- Cards de Livros serão injetados aqui pelo JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 4. Rodapé -->
+    <footer class="bg-gray-800 text-white mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
+            <p>&copy; 2024 Biblioteca Online. Todos os direitos reservados. | <a href="#" class="hover:text-indigo-400">Termos de Uso</a></p>
+        </div>
+    </footer>
+
+
+    <script>
+        // Inicializa ícones Lucide
+        lucide.createIcons();
+
+        // 1. MOCK DATA (Dados de Exemplo)
+        const mockBooks = [
+            { id: 1, title: 'A Revolução Silenciosa', author: 'Ana Silva', year: 2023, category: 'Ficção Científica', cover: 'https://placehold.co/150x220/1f2937/ffffff?text=Ficção+Científica', popularity: 5 },
+            { id: 2, title: 'O Código da Memória', author: 'Bruno Carvalho', year: 2022, category: 'Thriller', cover: 'https://placehold.co/150x220/991b1b/ffffff?text=Thriller', popularity: 8 },
+            { id: 3, title: 'Jardins de Outono', author: 'Carla Dias', year: 2024, category: 'Romance', cover: 'https://placehold.co/150x220/065f46/ffffff?text=Romance', popularity: 3 },
+            { id: 4, title: 'Guia do Desenvolvimento Web Moderno', author: 'Daniel Costa', year: 2021, category: 'Tecnologia', cover: 'https://placehold.co/150x220/1d4ed8/ffffff?text=Tecnologia', popularity: 7 },
+            { id: 5, title: 'História Inesperada', author: 'Eva Santos', year: 2023, category: 'História', cover: 'https://placehold.co/150x220/4c0519/ffffff?text=História', popularity: 6 },
+            { id: 6, title: 'A Era dos Bits', author: 'Fábio Guedes', year: 2024, category: 'Tecnologia', cover: 'https://placehold.co/150x220/0f766e/ffffff?text=Novidade', popularity: 2 },
+            { id: 7, title: 'O Último Suspiro', author: 'Gisele Lima', year: 2022, category: 'Romance', cover: 'https://placehold.co/150x220/7e22ce/ffffff?text=Drama', popularity: 4 },
+            { id: 8, title: 'Viagem Intergaláctica', author: 'Hugo Oliveira', year: 2023, category: 'Ficção Científica', cover: 'https://placehold.co/150x220/15803d/ffffff?text=Space', popularity: 9 },
+        ];
+
+        let currentBooks = [...mockBooks];
+        let messageTimeout; // Variável para controlar o timeout da mensagem
+
+        // 2. FUNÇÕES DE RENDERIZAÇÃO
+        
+        /**
+         * Cria o HTML para um único card de livro.
+         * @param {Object} book - Objeto do livro.
+         */
+        function createBookCard(book) {
+            return `
+                <div onclick="showBookDetail(${book.id})" class="bg-white rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1 cursor-pointer overflow-hidden">
+                    <img src="${book.cover}" alt="Capa do Livro: ${book.title}" class="book-card-cover rounded-t-lg"
+                         onerror="this.onerror=null;this.src='https://placehold.co/150x220/e0e7ff/3b82f6?text=Capa+Indisponível';" />
+                    <div class="p-3">
+                        <h4 class="text-sm font-semibold text-gray-900 truncate" title="${book.title}">${book.title}</h4>
+                        <p class="text-xs text-indigo-600 mb-1">${book.author}</p>
+                        <span class="inline-block text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">${book.category}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Renderiza a lista de livros no container.
+         * @param {Array} booksToRender - A lista de livros filtrada ou completa.
+         */
+        function renderBooks(booksToRender) {
+            const bookListElement = document.getElementById('bookList');
+            
+            if (booksToRender.length === 0) {
+                bookListElement.innerHTML = `<p class="col-span-full text-center text-gray-500 py-10">Nenhum livro encontrado com o filtro aplicado.</p>`;
+            } else {
+                bookListElement.innerHTML = booksToRender.map(createBookCard).join('');
+            }
+        }
+
+        /**
+         * Função de simulação para a página de detalhes do livro e empréstimo,
+         * exibindo uma mensagem temporária na área principal.
+         * @param {number} bookId - ID do livro.
+         */
+        function showBookDetail(bookId) {
+            const book = mockBooks.find(b => b.id === bookId);
+            const messageBox = document.getElementById('mainMessageBox');
+            
+            // Limpa qualquer timeout de mensagem anterior
+            clearTimeout(messageTimeout);
+
+            // Exibe a mensagem de simulação
+            messageBox.innerHTML = `**Simulação:** Você clicou no livro: <span class="font-bold">${book.title}</span>. Aqui seria exibida a página de detalhes com opções de Empréstimo/Devolução.`;
+            messageBox.classList.remove('hidden', 'text-yellow-700', 'bg-yellow-100', 'border-yellow-500');
+            messageBox.classList.add('text-green-700', 'bg-green-100', 'border-green-300');
+
+            // Oculta a mensagem após 7 segundos
+            messageTimeout = setTimeout(() => { messageBox.classList.add('hidden'); }, 7000);
+        }
+
+        // 3. FUNÇÕES DE INTERAÇÃO (Busca e Filtro)
+
+        /**
+         * Filtra os livros com base no termo de pesquisa.
+         */
+        function searchBooks() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filteredBooks = mockBooks.filter(book =>
+                book.title.toLowerCase().includes(searchTerm) ||
+                book.author.toLowerCase().includes(searchTerm) ||
+                book.category.toLowerCase().includes(searchTerm)
+            );
+            
+            currentBooks = filteredBooks;
+            document.getElementById('sectionTitle').textContent = searchTerm ? 
+                `Resultados da Busca por: "${document.getElementById('searchInput').value}"` : 
+                'Livros em Destaque';
+            renderBooks(currentBooks);
+
+            // Limpa o estilo de filtro rápido para a busca manual
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-200', 'text-indigo-800', 'border-indigo-600');
+                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            });
+        }
+
+        /**
+         * Aplica filtros rápidos.
+         * @param {string} filterType - O tipo de filtro (e.g., 'Populares', 'Tecnologia').
+         */
+        function applyQuickFilter(filterType) {
+            let filtered;
+
+            // Remove a seleção de todos os botões de filtro
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-200', 'text-indigo-800');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+
+            // Adiciona a seleção ao botão clicado
+            const activeBtn = document.querySelector(`.filter-btn[data-filter="${filterType}"]`);
+            if (activeBtn) {
+                 activeBtn.classList.add('bg-indigo-200', 'text-indigo-800');
+                 activeBtn.classList.remove('bg-white', 'text-gray-700');
+            }
+            
+            document.getElementById('searchInput').value = ''; // Limpa a busca manual
+
+            if (filterType === 'Populares') {
+                // Ordena por popularidade (do maior para o menor)
+                filtered = [...mockBooks].sort((a, b) => b.popularity - a.popularity);
+                document.getElementById('sectionTitle').textContent = 'Livros Mais Populares';
+            } else if (filterType === 'Novos') {
+                // Ordena por ano (do mais novo para o mais antigo)
+                filtered = [...mockBooks].sort((a, b) => b.year - a.year);
+                document.getElementById('sectionTitle').textContent = 'Novos Lançamentos';
+            } else {
+                // Filtro por Categoria (Tecnologia, Romance, etc.)
+                filtered = mockBooks.filter(book => book.category === filterType);
+                document.getElementById('sectionTitle').textContent = `Resultados por Categoria: ${filterType}`;
+            }
+            
+            currentBooks = filtered;
+            renderBooks(currentBooks);
+        }
+
+        // 4. INICIALIZAÇÃO
+        window.onload = function() {
+            // Renderiza os livros iniciais usando o filtro 'Populares' por padrão
+            applyQuickFilter('Populares');
+
+            // Adiciona event listeners aos botões de filtro rápido
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    applyQuickFilter(button.getAttribute('data-filter'));
+                });
+            });
+
+            // Adiciona event listener para pesquisa (opcional, para Enter na barra de busca)
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchBooks();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
