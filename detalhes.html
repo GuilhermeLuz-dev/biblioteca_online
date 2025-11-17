@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Livro | Biblioteca Online</title>
+    <!-- Carrega o Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .book-cover-large {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 1. Cabeçalho Simples -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 transition">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                <span class="font-medium">Voltar à Busca</span>
+            </a>
+            <h1 class="text-xl font-bold text-gray-900 hidden sm:block">Detalhes do Livro</h1>
+            <a href="login.html" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">
+                Login
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. Detalhes do Livro -->
+    <main class="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div id="loadingIndicator" class="text-center text-gray-500 text-lg">Carregando detalhes do livro...</div>
+        
+        <div id="bookDetailContent" class="hidden bg-white rounded-2xl shadow-xl overflow-hidden md:flex">
+            
+            <!-- Coluna da Capa -->
+            <div class="md:w-1/3 p-6 flex justify-center items-start">
+                <img id="bookCover" src="" alt="Capa do Livro" class="book-cover-large object-contain">
+            </div>
+
+            <!-- Coluna de Informações e Ação -->
+            <div class="md:w-2/3 p-6 sm:p-10 space-y-6">
+                <div class="border-b pb-4">
+                    <h2 id="bookTitle" class="text-4xl font-extrabold text-gray-900 mb-2"></h2>
+                    <p id="bookAuthor" class="text-xl text-indigo-600 font-semibold"></p>
+                </div>
+                
+                <!-- Metadados -->
+                <div class="grid grid-cols-2 gap-4 text-gray-600">
+                    <p><strong>Categoria:</strong> <span id="bookCategory"></span></p>
+                    <p><strong>Ano:</strong> <span id="bookYear"></span></p>
+                    <p><strong>ID do Livro:</strong> <span id="bookId"></span></p>
+                    <p><strong>Popularidade:</strong> <span id="bookPopularity"></span></p>
+                </div>
+
+                <!-- Simulação do Empréstimo -->
+                <div id="lendingStatusSection" class="border-t pt-6 mt-6 space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Gerenciar Empréstimo</h3>
+                    
+                    <div id="statusMessage" class="p-3 text-sm rounded-lg border"></div>
+
+                    <button id="actionButton" onclick="handleLendingAction()" 
+                            class="w-full sm:w-auto px-6 py-3 font-bold text-white rounded-lg transition duration-200 shadow-md flex items-center justify-center space-x-2">
+                        <!-- Texto e cor do botão serão definidos pelo JS -->
+                    </button>
+                    
+                    <p class="text-xs text-gray-500 pt-2">
+                        *A simulação de status (Emprestado/Disponível) é persistida localmente no seu navegador via `localStorage`.
+                    </p>
+                </div>
+
+                <!-- Descrição (Placeholder) -->
+                <div class="border-t pt-6 mt-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Sinopse</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="notFound" class="hidden text-center py-20">
+            <i data-lucide="frown" class="w-12 h-12 text-red-500 mx-auto mb-4"></i>
+            <h2 class="text-3xl font-bold text-gray-800">Livro Não Encontrado</h2>
+            <p class="text-gray-500 mt-2">Verifique o ID do livro na URL e tente novamente.</p>
+        </div>
+    </main>
+
+    <!-- 3. Rodapé -->
+    <footer class="bg-gray-800 text-white mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
+            <p>&copy; 2024 Biblioteca Online. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // Inicializa ícones Lucide
+        lucide.createIcons();
+
+        // 1. MOCK DATA (Deve ser o mesmo do index.html para consistência)
+        const mockBooks = [
+            { id: 1, title: 'A Revolução Silenciosa', author: 'Ana Silva', year: 2023, category: 'Ficção Científica', cover: 'https://placehold.co/400x600/1f2937/ffffff?text=Ficção+Científica', popularity: 5 },
+            { id: 2, title: 'O Código da Memória', author: 'Bruno Carvalho', year: 2022, category: 'Thriller', cover: 'https://placehold.co/400x600/991b1b/ffffff?text=Thriller', popularity: 8 },
+            { id: 3, title: 'Jardins de Outono', author: 'Carla Dias', year: 2024, category: 'Romance', cover: 'https://placehold.co/400x600/065f46/ffffff?text=Romance', popularity: 3 },
+            { id: 4, title: 'Guia do Desenvolvimento Web Moderno', author: 'Daniel Costa', year: 2021, category: 'Tecnologia', cover: 'https://placehold.co/400x600/1d4ed8/ffffff?text=Tecnologia', popularity: 7 },
+            { id: 5, title: 'História Inesperada', author: 'Eva Santos', year: 2023, category: 'História', cover: 'https://placehold.co/400x600/4c0519/ffffff?text=História', popularity: 6 },
+            { id: 6, title: 'A Era dos Bits', author: 'Fábio Guedes', year: 2024, category: 'Tecnologia', cover: 'https://placehold.co/400x600/0f766e/ffffff?text=Novidade', popularity: 2 },
+            { id: 7, title: 'O Último Suspiro', author: 'Gisele Lima', year: 2022, category: 'Romance', cover: 'https://placehold.co/400x600/7e22ce/ffffff?text=Drama', popularity: 4 },
+            { id: 8, title: 'Viagem Intergaláctica', author: 'Hugo Oliveira', year: 2023, category: 'Ficção Científica', cover: 'https://placehold.co/400x600/15803d/ffffff?text=Space', popularity: 9 },
+        ];
+
+        let currentBook = null;
+        const simulatedUserId = 'USER_123'; // ID de usuário simulado para controle de empréstimo
+
+        // 2. FUNÇÕES DE ESTADO E PERSISTÊNCIA (Simulação com localStorage)
+
+        /**
+         * Verifica o status de empréstimo do livro no localStorage.
+         * Retorna 'available' ou o ID do usuário que o emprestou.
+         */
+        function getLendingStatus(bookId) {
+            // O formato de armazenamento é: 'lend_status_<bookId>' = 'USER_ID'
+            return localStorage.getItem(`lend_status_${bookId}`) || 'available';
+        }
+
+        /**
+         * Atualiza o status de empréstimo no localStorage.
+         * @param {number} bookId - ID do livro.
+         * @param {string} status - O ID do usuário ou 'available'.
+         */
+        function updateLendingStatus(bookId, status) {
+            if (status === 'available') {
+                localStorage.removeItem(`lend_status_${bookId}`);
+            } else {
+                localStorage.setItem(`lend_status_${bookId}`, status);
+            }
+            renderLendingState(); // Re-renderiza a seção após a mudança
+        }
+
+        /**
+         * Simula o Empréstimo do livro.
+         */
+        function lendBook() {
+            if (getLendingStatus(currentBook.id) === 'available') {
+                updateLendingStatus(currentBook.id, simulatedUserId);
+                displayMessage('Livro emprestado com sucesso! Lembre-se da data de devolução.', true);
+            } else {
+                displayMessage('Este livro já está emprestado por outro usuário (simulado).', false);
+            }
+        }
+
+        /**
+         * Simula a Devolução do livro.
+         */
+        function returnBook() {
+            const status = getLendingStatus(currentBook.id);
+            if (status === simulatedUserId) {
+                updateLendingStatus(currentBook.id, 'available');
+                displayMessage('Devolução registrada com sucesso! Livro disponível.', true);
+            } else if (status === 'available') {
+                displayMessage('O livro já está disponível para empréstimo.', false);
+            } else {
+                 displayMessage(`Você não pode devolver este livro. Ele está emprestado por outro usuário (ID: ${status}).`, false);
+            }
+        }
+
+        /**
+         * Lida com a ação de empréstimo ou devolução.
+         */
+        function handleLendingAction() {
+            const status = getLendingStatus(currentBook.id);
+            if (status === 'available') {
+                lendBook();
+            } else if (status === simulatedUserId) {
+                returnBook();
+            } else {
+                displayMessage(`Este livro está emprestado por outro usuário. Status: ${status}`, false);
+            }
+        }
+
+        /**
+         * Exibe uma mensagem de feedback na seção de status.
+         * @param {string} message - O texto da mensagem.
+         * @param {boolean} isSuccess - true (verde), false (vermelho/amarelo).
+         */
+        function displayMessage(message, isSuccess) {
+            const messageBox = document.getElementById('statusMessage');
+            messageBox.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'border-green-500', 'bg-red-100', 'text-red-700', 'border-red-500');
+            
+            if (isSuccess) {
+                messageBox.classList.add('bg-green-100', 'text-green-700', 'border-green-500');
+            } else {
+                messageBox.classList.add('bg-red-100', 'text-red-700', 'border-red-500');
+            }
+            messageBox.innerHTML = message;
+
+            setTimeout(() => { messageBox.classList.add('hidden'); }, 7000);
+        }
+
+        // 3. FUNÇÃO DE RENDERIZAÇÃO PRINCIPAL
+
+        /**
+         * Renderiza o estado atual (botão e mensagem) da seção de empréstimo.
+         */
+        function renderLendingState() {
+            if (!currentBook) return;
+
+            const status = getLendingStatus(currentBook.id);
+            const button = document.getElementById('actionButton');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Remove classes de cor anteriores
+            button.classList.remove('bg-green-600', 'hover:bg-green-700', 'bg-red-600', 'hover:bg-red-700', 'bg-gray-400', 'hover:bg-gray-500');
+
+            if (status === 'available') {
+                // Disponível para empréstimo
+                button.textContent = 'Emprestar Livro';
+                button.classList.add('bg-green-600', 'hover:bg-green-700');
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.remove('bg-red-100', 'text-red-700', 'border-red-500');
+                statusMessage.classList.add('bg-indigo-100', 'text-indigo-700', 'border-indigo-500');
+                statusMessage.innerHTML = 'Status: <span class="font-bold">Disponível</span> para empréstimo imediato.';
+            } else if (status === simulatedUserId) {
+                // Emprestado pelo usuário simulado
+                button.textContent = 'Fazer Devolução';
+                button.classList.add('bg-red-600', 'hover:bg-red-700');
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.remove('bg-indigo-100', 'text-indigo-700', 'border-indigo-500');
+                statusMessage.classList.add('bg-yellow-100', 'text-yellow-700', 'border-yellow-500');
+                statusMessage.innerHTML = 'Status: <span class="font-bold">Emprestado</span> por você. Devolução pendente.';
+            } else {
+                // Emprestado por outro usuário (simulado)
+                button.textContent = 'Livro Emprestado';
+                button.classList.add('bg-gray-400', 'cursor-not-allowed');
+                button.setAttribute('disabled', 'true');
+                statusMessage.classList.remove('hidden');
+                statusMessage.classList.remove('bg-indigo-100', 'text-indigo-700', 'border-indigo-500');
+                statusMessage.classList.add('bg-red-100', 'text-red-700', 'border-red-500');
+                statusMessage.innerHTML = `Status: <span class="font-bold">Emprestado</span> por outro usuário (ID: ${status}).`;
+            }
+        }
+
+        /**
+         * Inicializa a página: busca o ID e carrega os detalhes.
+         */
+        function initializePage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = parseInt(urlParams.get('id'));
+
+            currentBook = mockBooks.find(book => book.id === bookId);
+            
+            document.getElementById('loadingIndicator').classList.add('hidden');
+
+            if (currentBook) {
+                document.getElementById('bookDetailContent').classList.remove('hidden');
+                
+                // Preenche os detalhes do livro
+                document.getElementById('bookCover').src = currentBook.cover;
+                document.getElementById('bookTitle').textContent = currentBook.title;
+                document.getElementById('bookAuthor').textContent = currentBook.author;
+                document.getElementById('bookCategory').textContent = currentBook.category;
+                document.getElementById('bookYear').textContent = currentBook.year;
+                document.getElementById('bookId').textContent = currentBook.id;
+                document.getElementById('bookPopularity').textContent = currentBook.popularity;
+
+                // Renderiza o estado inicial de empréstimo
+                renderLendingState();
+            } else {
+                document.getElementById('notFound').classList.remove('hidden');
+            }
+        }
+
+        window.onload = initializePage;
+    </script>
+</body>
+</html>
